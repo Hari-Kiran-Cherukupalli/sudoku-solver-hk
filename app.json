@@ -39,7 +39,8 @@
           "photosPermission": "Allow Sudoku Solver - HK to access your photos.",
           "cameraPermission": "Allow Sudoku Solver - HK to use your camera."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "eas": {
