@@ -10,3 +10,5 @@ web-build/
 *.key
 *.mobileprovision
 *.orig.*
+
+package-lock.json
