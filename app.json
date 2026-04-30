@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Sudoku Solver - HK",
+    "slug": "sudoku-solver-hk",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a237e"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.hk.sudokusolver",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "We need access to your photo library to import sudoku puzzle images.",
+        "NSCameraUsageDescription": "We need access to your camera to capture sudoku puzzle images."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a237e"
+      },
+      "package": "com.hk.sudokusolver",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Sudoku Solver - HK to access your photos.",
+          "cameraPermission": "Allow Sudoku Solver - HK to use your camera."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c00663f0-5359-4692-bbf6-cef496460125"
+      }
+    },
+    "owner": "hari_kiran_csb"
+  }
+}
