@@ -24,6 +24,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Install NDK 26.1.10909125
+        run: |
+          echo "y" | sudo $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "ndk;26.1.10909125" --sdk_root=$ANDROID_SDK_ROOT
+        env:
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+        env:
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
       - name: Install npm dependencies
         run: npm install
 
@@ -31,12 +42,13 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
         working-directory: android
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: sudoku-solver-hk
