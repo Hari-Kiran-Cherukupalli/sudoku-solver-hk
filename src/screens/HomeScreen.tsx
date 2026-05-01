@@ -3,6 +3,7 @@ import React from 'react';
 import {
   ActivityIndicator,
   Alert,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -14,6 +15,144 @@ import { cloneGrid } from '../utils/sudokuSolver';
 
 interface Props {
   onGridReady: (grid: Grid) => void;
+}
+
+// 10 different sample puzzles (varying difficulty)
+const SAMPLE_PUZZLES: Grid[] = [
+  // Easy
+  [
+    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+    [0, 0, 0, 0, 8, 0, 0, 7, 9],
+  ],
+  // Easy
+  [
+    [0, 0, 3, 0, 2, 0, 6, 0, 0],
+    [9, 0, 0, 3, 0, 5, 0, 0, 1],
+    [0, 0, 1, 8, 0, 6, 4, 0, 0],
+    [0, 0, 8, 1, 0, 2, 9, 0, 0],
+    [7, 0, 0, 0, 0, 0, 0, 0, 8],
+    [0, 0, 6, 7, 0, 8, 2, 0, 0],
+    [0, 0, 2, 6, 0, 9, 5, 0, 0],
+    [8, 0, 0, 2, 0, 3, 0, 0, 9],
+    [0, 0, 5, 0, 1, 0, 3, 0, 0],
+  ],
+  // Medium
+  [
+    [0, 0, 0, 2, 6, 0, 7, 0, 1],
+    [6, 8, 0, 0, 7, 0, 0, 9, 0],
+    [1, 9, 0, 0, 0, 4, 5, 0, 0],
+    [8, 2, 0, 1, 0, 0, 0, 4, 0],
+    [0, 0, 4, 6, 0, 2, 9, 0, 0],
+    [0, 5, 0, 0, 0, 3, 0, 2, 8],
+    [0, 0, 9, 3, 0, 0, 0, 7, 4],
+    [0, 4, 0, 0, 5, 0, 0, 3, 6],
+    [7, 0, 3, 0, 1, 8, 0, 0, 0],
+  ],
+  // Medium
+  [
+    [0, 2, 0, 6, 0, 8, 0, 0, 0],
+    [5, 8, 0, 0, 0, 9, 7, 0, 0],
+    [0, 0, 0, 0, 4, 0, 0, 0, 0],
+    [3, 7, 0, 0, 0, 0, 5, 0, 0],
+    [6, 0, 0, 0, 0, 0, 0, 0, 4],
+    [0, 0, 8, 0, 0, 0, 0, 1, 3],
+    [0, 0, 0, 0, 2, 0, 0, 0, 0],
+    [0, 0, 9, 8, 0, 0, 0, 3, 6],
+    [0, 0, 0, 3, 0, 6, 0, 9, 0],
+  ],
+  // Medium
+  [
+    [0, 0, 0, 0, 0, 0, 9, 0, 7],
+    [0, 0, 0, 4, 2, 0, 1, 8, 0],
+    [0, 0, 0, 7, 0, 5, 0, 2, 6],
+    [1, 0, 0, 9, 0, 4, 0, 0, 0],
+    [0, 5, 0, 0, 0, 0, 0, 4, 0],
+    [0, 0, 0, 5, 0, 7, 0, 0, 9],
+    [9, 2, 0, 1, 0, 8, 0, 0, 0],
+    [0, 3, 4, 0, 5, 9, 0, 0, 0],
+    [5, 0, 7, 0, 0, 0, 0, 0, 0],
+  ],
+  // Hard
+  [
+    [0, 0, 0, 0, 0, 0, 0, 1, 2],
+    [0, 0, 0, 0, 3, 5, 0, 0, 0],
+    [0, 0, 0, 6, 0, 0, 0, 7, 0],
+    [7, 0, 0, 0, 0, 0, 3, 0, 0],
+    [0, 0, 0, 4, 0, 0, 8, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 2, 0, 0, 0, 0],
+    [0, 8, 0, 0, 0, 0, 0, 4, 0],
+    [0, 5, 0, 0, 0, 0, 6, 0, 0],
+  ],
+  // Hard
+  [
+    [0, 0, 1, 0, 0, 2, 0, 0, 0],
+    [0, 0, 5, 0, 0, 0, 0, 0, 0],
+    [4, 0, 0, 0, 0, 1, 0, 9, 0],
+    [0, 0, 0, 0, 8, 0, 0, 0, 0],
+    [0, 7, 0, 0, 0, 0, 6, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 2, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 3],
+    [0, 0, 2, 0, 0, 0, 0, 0, 4],
+  ],
+  // Medium
+  [
+    [0, 0, 0, 0, 9, 4, 0, 3, 0],
+    [0, 0, 0, 5, 1, 0, 0, 0, 7],
+    [0, 8, 9, 0, 0, 0, 4, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 7, 0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 1, 0, 6, 0, 8, 0],
+    [0, 0, 2, 6, 0, 0, 0, 1, 0],
+    [0, 3, 0, 0, 0, 0, 0, 0, 5],
+    [9, 0, 0, 0, 7, 0, 0, 6, 0],
+  ],
+  // Easy
+  [
+    [1, 0, 0, 4, 8, 9, 0, 0, 6],
+    [7, 3, 0, 0, 0, 0, 0, 4, 0],
+    [0, 0, 0, 0, 0, 1, 2, 9, 5],
+    [0, 0, 7, 1, 2, 0, 6, 0, 0],
+    [5, 0, 0, 7, 0, 3, 0, 0, 8],
+    [0, 0, 6, 0, 9, 5, 7, 0, 0],
+    [9, 1, 4, 6, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 0, 0, 0, 3, 7],
+    [8, 0, 0, 5, 1, 2, 0, 0, 4],
+  ],
+  // Medium
+  [
+    [0, 0, 5, 3, 0, 0, 0, 0, 0],
+    [8, 0, 0, 0, 0, 0, 0, 2, 0],
+    [0, 7, 0, 0, 1, 0, 5, 0, 0],
+    [4, 0, 0, 0, 0, 5, 3, 0, 0],
+    [0, 1, 0, 0, 7, 0, 0, 0, 6],
+    [0, 0, 3, 2, 0, 0, 0, 8, 0],
+    [0, 6, 0, 5, 0, 0, 0, 0, 9],
+    [0, 0, 4, 0, 0, 0, 0, 3, 0],
+    [0, 0, 0, 0, 0, 9, 7, 0, 0],
+  ],
+];
+
+// Blank grid for manual entry
+const BLANK_GRID: Grid = Array(9).fill(null).map(() => Array(9).fill(0));
+
+let lastSampleIndex = -1;
+
+function getNextSample(): Grid {
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * SAMPLE_PUZZLES.length);
+  } while (idx === lastSampleIndex && SAMPLE_PUZZLES.length > 1);
+  lastSampleIndex = idx;
+  return SAMPLE_PUZZLES[idx];
 }
 
 export default function HomeScreen({ onGridReady }: Props) {
@@ -47,7 +186,18 @@ export default function HomeScreen({ onGridReady }: Props) {
     try {
       const healthy = await checkBackendHealth();
       if (!healthy) {
-        throw new Error('Backend server is not reachable. See README for setup instructions.');
+        setLoading(false);
+        setLoadingMsg('');
+        Alert.alert(
+          '📡 OCR Server Offline',
+          'The image-recognition server is not running.\n\nYou can still:\n• Try a sample puzzle\n• Enter the sudoku manually',
+          [
+            { text: 'Try Sample', onPress: loadSample },
+            { text: 'Enter Manually', onPress: enterManually },
+            { text: 'Cancel', style: 'cancel' },
+          ]
+        );
+        return;
       }
 
       setLoadingMsg('Analysing sudoku…');
@@ -63,19 +213,21 @@ export default function HomeScreen({ onGridReady }: Props) {
 
   async function loadSample() {
     setLoading(true);
-    setLoadingMsg('Loading sample puzzle…');
+    setLoadingMsg('Loading puzzle…');
     try {
       const healthy = await checkBackendHealth();
-      const grid = healthy
-        ? await fetchSampleGrid()
-        : OFFLINE_SAMPLE;
+      const grid = healthy ? await fetchSampleGrid() : getNextSample();
       onGridReady(cloneGrid(grid));
     } catch {
-      onGridReady(cloneGrid(OFFLINE_SAMPLE));
+      onGridReady(cloneGrid(getNextSample()));
     } finally {
       setLoading(false);
       setLoadingMsg('');
     }
+  }
+
+  function enterManually() {
+    onGridReady(cloneGrid(BLANK_GRID));
   }
 
   if (loading) {
@@ -88,57 +240,86 @@ export default function HomeScreen({ onGridReady }: Props) {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.hero}>
         <Text style={styles.emoji}>🧩</Text>
-        <Text style={styles.title}>Sudoku Solver</Text>
+        <Text style={styles.title}>Sudoku Solver - HK</Text>
         <Text style={styles.subtitle}>Snap a puzzle and let AI do the heavy lifting</Text>
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity style={[styles.btn, styles.btnPrimary]} onPress={() => pickAndProcess('camera')} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={[styles.btn, styles.btnPrimary]}
+          onPress={() => pickAndProcess('camera')}
+          activeOpacity={0.85}
+        >
           <Text style={styles.btnIcon}>📷</Text>
-          <Text style={styles.btnText}>Take a Photo</Text>
-          <Text style={styles.btnSub}>Open camera</Text>
+          <View style={styles.btnLabels}>
+            <Text style={styles.btnText}>Take a Photo</Text>
+            <Text style={styles.btnSub}>Snap your sudoku puzzle</Text>
+          </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={() => pickAndProcess('gallery')} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={[styles.btn, styles.btnSecondary]}
+          onPress={() => pickAndProcess('gallery')}
+          activeOpacity={0.85}
+        >
           <Text style={styles.btnIcon}>🖼️</Text>
-          <Text style={styles.btnText}>Upload from Gallery</Text>
-          <Text style={[styles.btnSub, { color: '#1a237e' }]}>Choose existing photo</Text>
+          <View style={styles.btnLabels}>
+            <Text style={[styles.btnText, { color: '#1a237e' }]}>Upload from Gallery</Text>
+            <Text style={[styles.btnSub, { color: '#546e7a' }]}>Choose an existing photo</Text>
+          </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.btn, styles.btnOutline]} onPress={loadSample} activeOpacity={0.85}>
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or play without a photo</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity
+          style={[styles.btn, styles.btnOutline]}
+          onPress={loadSample}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.btnIcon}>🎲</Text>
+          <View style={styles.btnLabels}>
+            <Text style={[styles.btnText, { color: '#333' }]}>Try a Sample Puzzle</Text>
+            <Text style={[styles.btnSub, { color: '#888' }]}>10 puzzles · easy to hard</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.btn, styles.btnManual]}
+          onPress={enterManually}
+          activeOpacity={0.85}
+        >
           <Text style={styles.btnIcon}>✏️</Text>
-          <Text style={[styles.btnText, { color: '#555' }]}>Try a Sample Puzzle</Text>
-          <Text style={[styles.btnSub, { color: '#888' }]}>Test without a photo</Text>
+          <View style={styles.btnLabels}>
+            <Text style={[styles.btnText, { color: '#333' }]}>Enter Manually</Text>
+            <Text style={[styles.btnSub, { color: '#888' }]}>Tap cells and type numbers</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
       <Text style={styles.tip}>
         💡 Tip: Make sure the entire grid is inside the frame and well-lit for best results.
       </Text>
-    </View>
+    </ScrollView>
   );
 }
 
-// Fallback puzzle used when backend is offline
-const OFFLINE_SAMPLE: Grid = [
-  [5, 3, 0, 0, 7, 0, 0, 0, 0],
-  [6, 0, 0, 1, 9, 5, 0, 0, 0],
-  [0, 9, 8, 0, 0, 0, 0, 6, 0],
-  [8, 0, 0, 0, 6, 0, 0, 0, 3],
-  [4, 0, 0, 8, 0, 3, 0, 0, 1],
-  [7, 0, 0, 0, 2, 0, 0, 0, 6],
-  [0, 6, 0, 0, 0, 0, 2, 8, 0],
-  [0, 0, 0, 4, 1, 9, 0, 0, 5],
-  [0, 0, 0, 0, 8, 0, 0, 7, 9],
-];
-
 const styles = StyleSheet.create({
-  container: {
+  scroll: {
     flex: 1,
     backgroundColor: '#f0f4ff',
+  },
+  container: {
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 40,
@@ -156,14 +337,14 @@ const styles = StyleSheet.create({
   },
   hero: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginBottom: 40,
   },
   emoji: {
     fontSize: 64,
     marginBottom: 12,
   },
   title: {
-    fontSize: 34,
+    fontSize: 30,
     fontWeight: '800',
     color: '#1a237e',
     letterSpacing: -0.5,
@@ -175,7 +356,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   actions: {
-    gap: 14,
+    gap: 12,
   },
   btn: {
     flexDirection: 'row',
@@ -198,23 +379,48 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 1.5,
     borderColor: '#cfd8dc',
+    elevation: 1,
+  },
+  btnManual: {
+    backgroundColor: '#fff8e1',
+    borderWidth: 1.5,
+    borderColor: '#ffe082',
+    elevation: 1,
   },
   btnIcon: {
-    fontSize: 26,
+    fontSize: 28,
     marginRight: 14,
   },
-  btnText: {
+  btnLabels: {
     flex: 1,
-    fontSize: 17,
+  },
+  btnText: {
+    fontSize: 16,
     fontWeight: '700',
     color: '#fff',
   },
   btnSub: {
     fontSize: 12,
     color: 'rgba(255,255,255,0.7)',
+    marginTop: 2,
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
+    gap: 10,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#cfd8dc',
+  },
+  dividerText: {
+    fontSize: 12,
+    color: '#90a4ae',
   },
   tip: {
-    marginTop: 36,
+    marginTop: 28,
     fontSize: 13,
     color: '#78909c',
     textAlign: 'center',
