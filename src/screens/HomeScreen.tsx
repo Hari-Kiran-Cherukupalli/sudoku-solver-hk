@@ -14,7 +14,8 @@ import { cloneGrid } from '../utils/sudokuSolver';
 import { recognizeSudokuFromPhoto } from '../utils/offlineOcr';
 
 interface Props {
-  onGridReady: (grid: Grid) => void;
+  /** original = locked "given" cells; prefill = editable pre-filled cells (OCR) */
+  onGridReady: (original: Grid, prefill?: Grid) => void;
 }
 
 // ─── 10 built-in sample puzzles (easy → hard) ────────────────────────────────
@@ -189,7 +190,9 @@ export default function HomeScreen({ onGridReady }: Props) {
     try {
       // 3. Run ML Kit OCR entirely on-device — no server needed
       const grid = await recognizeSudokuFromPhoto(result.assets[0].uri);
-      onGridReady(grid);
+      // Pass blank original (so ALL cells are editable) + OCR result as prefill
+      // This lets the user correct any OCR mistakes before solving
+      onGridReady(cloneGrid(BLANK_GRID), grid);
     } catch (err: any) {
       Alert.alert(
         '🔍 Could Not Read Puzzle',
@@ -207,10 +210,12 @@ export default function HomeScreen({ onGridReady }: Props) {
   }
 
   function loadSample() {
+    // Sample puzzle: pass as locked original (given cells can't be changed)
     onGridReady(cloneGrid(getNextSample()));
   }
 
   function enterManually() {
+    // Blank original — all cells editable, no prefill
     onGridReady(cloneGrid(BLANK_GRID));
   }
 

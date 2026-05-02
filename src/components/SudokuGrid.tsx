@@ -11,24 +11,21 @@ interface Props {
   currentGrid: Grid;
   hintRow?: number;
   hintCol?: number;
-  /** cells that came from hints (row*9+col set) */
-  hintCells: Set<number>;
-  /** cells that came from full solve */
-  solvedCells: Set<number>;
+  hintCells: Set<number>;   // cells revealed by hints or manually entered
+  solvedCells: Set<number>; // cells from full-solve
   onCellPress?: (row: number, col: number) => void;
   selectedCell?: { row: number; col: number } | null;
 }
 
 const COLORS = {
   given: '#1a1a2e',
-  hint: '#e67e22',
-  solved: '#2980b9',
-  selected: '#eaf4fb',
+  hint: '#c0580a',       // darker orange — clearly visible on white
+  solved: '#1565c0',     // stronger blue
+  selected: '#dbeafe',   // soft blue highlight
   highlighted: '#fff3e0',
   boxBorder: '#1a1a2e',
   cellBorder: '#b0bec5',
   background: '#ffffff',
-  gridBg: '#ecf0f1',
 };
 
 export default function SudokuGrid({
@@ -53,23 +50,30 @@ export default function SudokuGrid({
             const isSolvedCell = solvedCells.has(key);
             const isSelected = selectedCell?.row === r && selectedCell?.col === c;
 
+            // Background
             let bgColor = COLORS.background;
             if (isHintHighlight) bgColor = COLORS.highlighted;
-            else if (isSelected) bgColor = COLORS.selected;
+            else if (isSelected)  bgColor = COLORS.selected;
 
+            // Text colour
             let textColor = COLORS.given;
             if (isHintHighlight || isHintCell) textColor = COLORS.hint;
-            else if (isSolvedCell) textColor = COLORS.solved;
+            else if (isSolvedCell)             textColor = COLORS.solved;
 
+            // Border weights for 3×3 box boundaries
             const rightBorder =
               (c + 1) % 3 === 0 && c !== 8
-                ? { borderRightWidth: 2, borderRightColor: COLORS.boxBorder }
-                : { borderRightWidth: 0.5, borderRightColor: COLORS.cellBorder };
+                ? { borderRightWidth: 2,   borderRightColor:  COLORS.boxBorder }
+                : { borderRightWidth: 0.5, borderRightColor:  COLORS.cellBorder };
 
             const bottomBorder =
               (r + 1) % 3 === 0 && r !== 8
-                ? { borderBottomWidth: 2, borderBottomColor: COLORS.boxBorder }
+                ? { borderBottomWidth: 2,   borderBottomColor: COLORS.boxBorder }
                 : { borderBottomWidth: 0.5, borderBottomColor: COLORS.cellBorder };
+
+            // Bold for: given cells, hint highlights, hint cells (manually entered
+            // or revealed by hint engine), solved cells — everything with a value
+            const isBold = isGiven || isHintHighlight || isHintCell || isSolvedCell;
 
             return (
               <TouchableOpacity
@@ -83,8 +87,7 @@ export default function SudokuGrid({
                     style={[
                       styles.cellText,
                       { color: textColor },
-                      isGiven && styles.givenText,
-                      isHintHighlight && styles.hintText,
+                      isBold && styles.boldText,
                     ]}
                   >
                     {value}
@@ -108,9 +111,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ecf0f1',
     alignSelf: 'center',
   },
-  row: {
-    flexDirection: 'row',
-  },
+  row: { flexDirection: 'row' },
   cell: {
     width: CELL_SIZE,
     height: CELL_SIZE,
@@ -118,13 +119,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cellText: {
-    fontSize: CELL_SIZE * 0.54,
+    fontSize: CELL_SIZE * 0.52,
     lineHeight: CELL_SIZE * 0.58,
   },
-  givenText: {
-    fontWeight: '700',
-  },
-  hintText: {
+  boldText: {
     fontWeight: '700',
   },
 });

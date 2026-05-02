@@ -5,27 +5,34 @@ import HomeScreen from './src/screens/HomeScreen';
 import SolverScreen from './src/screens/SolverScreen';
 import { Grid } from './src/types';
 
+type PuzzleState = {
+  originalGrid: Grid;   // locked "given" cells
+  prefilledGrid?: Grid; // pre-filled but editable cells (OCR results)
+} | null;
+
 export default function App() {
-  const [grid, setGrid] = useState<Grid | null>(null);
+  const [puzzle, setPuzzle] = useState<PuzzleState>(null);
 
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar style="light" backgroundColor="#1a237e" />
-      {grid ? (
+      {puzzle ? (
         <SolverScreen
-          originalGrid={grid}
-          onReset={() => setGrid(null)}
+          originalGrid={puzzle.originalGrid}
+          prefilledGrid={puzzle.prefilledGrid}
+          onReset={() => setPuzzle(null)}
         />
       ) : (
-        <HomeScreen onGridReady={setGrid} />
+        <HomeScreen
+          onGridReady={(original, prefill) =>
+            setPuzzle({ originalGrid: original, prefilledGrid: prefill })
+          }
+        />
       )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#1a237e',
-  },
+  root: { flex: 1, backgroundColor: '#1a237e' },
 });
